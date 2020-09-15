@@ -68,11 +68,15 @@
 
             <v-card-subtitle v-if="status.mounted === null">Please wait ...</v-card-subtitle>
             <v-card-actions v-else>
-              <v-btn color="red" text :disabled="!status.mounted" @click="changeStatus('mounted', 'world:say-world')">
+              <v-btn color="red" text :disabled="!status.mounted" @click="changeStatus('mounted', 'mount:vdisk-unmount')">
                 {{status.mounted ? 'Unmount' : 'Unmounted'}}
               </v-btn>
-              <v-btn color="green" text :disabled="status.mounted" @click="changeStatus('mounted', 'world:say-world')">
+              <v-btn color="green" text :disabled="status.mounted" @click="changeStatus('mounted', 'mount:vdisk-mount')">
                 {{status.mounted ? 'Mounted' : 'Mount'}}
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="red" @click="changeStatus('mounted', 'mount:vdisk-remove')">
+                Delete
               </v-btn>
             </v-card-actions>
 
@@ -86,10 +90,10 @@
 
             <v-card-subtitle v-if="status.indexer === null">Please wait ...</v-card-subtitle>
             <v-card-actions v-else>
-              <v-btn color="red" text :disabled="!status.indexer" @click="changeStatus('indexer', 'world:say-world')">
+              <v-btn color="red" text :disabled="!status.indexer" @click="changeStatus('indexer', 'indexer:killed')">
                 {{status.indexer ? 'Stop' : 'Stopped'}}
               </v-btn>
-              <v-btn color="green" text :disabled="status.indexer" @click="changeStatus('indexer', 'world:say-world')">
+              <v-btn color="green" text :disabled="status.indexer" @click="changeStatus('indexer', 'indexer:spawn')">
                 {{status.indexer ? 'Running' : 'Run'}}
               </v-btn>
             </v-card-actions>
@@ -103,10 +107,10 @@
 
             <v-card-subtitle v-if="status.searchd === null">Please wait ...</v-card-subtitle>
             <v-card-actions v-else>
-              <v-btn color="red" text :disabled="!status.searchd" @click="changeStatus('searchd', 'world:say-world')">
+              <v-btn color="red" text :disabled="!status.searchd" @click="changeStatus('searchd', 'searchd:killed')">
                 {{status.searchd ? 'Stop' : 'Stopped'}}
               </v-btn>
-              <v-btn color="green" text :disabled="status.searchd" @click="changeStatus('searchd', 'world:say-world')">
+              <v-btn color="green" text :disabled="status.searchd" @click="changeStatus('searchd', 'searchd:spawn')">
                 {{status.searchd ? 'Running' : 'Run'}}
               </v-btn>
             </v-card-actions>
@@ -362,14 +366,26 @@ export default {
       let vm = this
       task.runList.forEach(item => {
         switch (item.jobname) {
-        case 'world:say-world':
-          vm.status.mounted = (item.exitcode == 0) ? true : false
+        case 'mount:vdisk-mount':
+          vm.status.mounted = (item.exitcode == 0)
           break
-        case 'world:say-world':
-          vm.status.indexer = (item.exitcode == 0) ? true : false
+
+        case 'mount:vdisk-unmount':
+          vm.status.mounted = !(item.exitcode == 0)
           break
-        case 'hello:say-world':
-          vm.status.searchd = (item.exitcode == 0) ? true : false
+
+        case 'indexer:spawn':
+          vm.status.indexer = (item.exitcode == 0)
+          break
+        case 'indexer:killed':
+          vm.status.indexer = !(item.exitcode == 0)
+          break
+
+        case 'searchd:spawn':
+          vm.status.searchd = (item.exitcode == 0)
+          break
+        case 'searchd:killed':
+          vm.status.searchd = !(item.exitcode == 0)
           break
         }
       })
