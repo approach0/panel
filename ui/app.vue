@@ -31,7 +31,6 @@
           <v-icon>laptop_mac</v-icon> &nbsp; {{jb}}
         </v-chip>
       </v-row>
-<<<<<<< HEAD
 
       <v-row justify="center" v-if="Object.keys(job_description).length > 0">
         <v-card v-if="job_description" class="d-inline-block" light>
@@ -47,23 +46,6 @@
       <v-card id="console" class="grey darken-4 console"
        v-bind:loading="console_loading">{{console_content}}</v-card>
 
-=======
-
-      <v-row justify="center" v-if="Object.keys(job_description).length > 0">
-        <v-card v-if="job_description" class="d-inline-block" light>
-          <v-card-text>
-          <p class="text-h5"> {{job_description['name']}} </p>
-          <p v-for="(val, key) in job_description" v-if="key != 'name'" class="text-subtitle-2 text--primary">
-            {{key}}: {{val}}
-          </p>
-          </v-card-text>
-        </v-card>
-      </v-row>
-
-      <v-card id="console" class="grey darken-4 console"
-       v-bind:loading="console_loading">{{console_content}}</v-card>
-
->>>>>>> master
       <v-row justify="space-around" class="flex-wrap">
         <v-switch v-model="console_refresh" label="Console refresh"></v-switch>
         <v-switch v-model="console_stickbt" label="Stick to bottom"></v-switch>
@@ -245,12 +227,9 @@ export default {
     }, 1000)
 
     vm.run('check-alive:all', false, true)
-<<<<<<< HEAD
-=======
     setInterval(() => {
       vm.run('check-alive:all', false, true)
     }, 15 * 1000 /* for command to run */)
->>>>>>> master
   },
 
   methods: {
@@ -302,22 +281,6 @@ export default {
     },
 
     run(jobname, manual, status) {
-<<<<<<< HEAD
-      let vm = this
-      axios.post(`/runjob`, {
-        goal: jobname,
-        dry_run: manual && vm.dry_run,
-        single_job: manual && vm.single_job,
-        status_task: status
-      })
-      .then(function (res) {
-        const data = res.data
-
-        if (manual) {
-          if ('error' in data) {
-            vm.input_err_msg = "Job is not defined."
-            return
-=======
       const vm = this
       return new Promise((resolve, reject) => {
         axios.post(`/runjob`, {
@@ -337,7 +300,6 @@ export default {
             }
 
             vm.fetch_log(jobname)
->>>>>>> master
           }
 
           resolve(data['taskID'])
@@ -412,34 +374,6 @@ export default {
       })
     },
 
-<<<<<<< HEAD
-    changeStatus(key, goal) {
-      let vm = this
-      vm.status[key] = null
-      vm.updateStatus_enable = false
-
-      vm.run(goal, false, false)
-
-      setTimeout(() => {
-        vm.run('check-alive:all', false, true)
-      }, 3 * 1000 /* for command to run */)
-
-      setTimeout(() => {
-        vm.updateStatus_enable = true
-      }, 6 * 1000 /* for test-alive to run */)
-    },
-
-    updateStatus() {
-      const vm = this
-      const status_tasks = vm.tasks.filter(t => t.taskid == 0)
-      if (status_tasks.length == 0)
-        return
-
-      status_tasks[0].runList.forEach(job => {
-        const exitcode = job.exitcode
-        switch (job.jobname) {
-
-=======
     async runAndWait() {
       const vm = this
       const arg = arguments
@@ -497,7 +431,6 @@ export default {
         const exitcode = job.exitcode
         switch (job.jobname) {
 
->>>>>>> master
         case 'check-alive:mounted':
           if (exitcode >= 0) vm.status.mounted = (exitcode == 0)
           break
