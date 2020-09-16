@@ -68,7 +68,7 @@
               Disk Volume
 
               <v-spacer></v-spacer>
-              <v-btn color="red" @click="changeStatus('mounted', 'mount:vdisk-remove')">
+              <v-btn color="red" @click="changeStatus('mounted', 'mount:rmdir')">
                 Delete
               </v-btn>
             </v-card-title>
