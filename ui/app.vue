@@ -31,6 +31,7 @@
           <v-icon>laptop_mac</v-icon> &nbsp; {{jb}}
         </v-chip>
       </v-row>
+<<<<<<< HEAD
 
       <v-row justify="center" v-if="Object.keys(job_description).length > 0">
         <v-card v-if="job_description" class="d-inline-block" light>
@@ -46,6 +47,23 @@
       <v-card id="console" class="grey darken-4 console"
        v-bind:loading="console_loading">{{console_content}}</v-card>
 
+=======
+
+      <v-row justify="center" v-if="Object.keys(job_description).length > 0">
+        <v-card v-if="job_description" class="d-inline-block" light>
+          <v-card-text>
+          <p class="text-h5"> {{job_description['name']}} </p>
+          <p v-for="(val, key) in job_description" v-if="key != 'name'" class="text-subtitle-2 text--primary">
+            {{key}}: {{val}}
+          </p>
+          </v-card-text>
+        </v-card>
+      </v-row>
+
+      <v-card id="console" class="grey darken-4 console"
+       v-bind:loading="console_loading">{{console_content}}</v-card>
+
+>>>>>>> master
       <v-row justify="space-around" class="flex-wrap">
         <v-switch v-model="console_refresh" label="Console refresh"></v-switch>
         <v-switch v-model="console_stickbt" label="Stick to bottom"></v-switch>
@@ -212,7 +230,7 @@ export default {
   },
 
   mounted: function () {
-    let vm = this
+    const vm = this
     setInterval(function () {
       const recent_job = vm.console_outsel || vm.console_starjob[0]
       if (vm.console_refresh) {
@@ -227,6 +245,12 @@ export default {
     }, 1000)
 
     vm.run('check-alive:all', false, true)
+<<<<<<< HEAD
+=======
+    setInterval(() => {
+      vm.run('check-alive:all', false, true)
+    }, 15 * 1000 /* for command to run */)
+>>>>>>> master
   },
 
   methods: {
@@ -253,7 +277,7 @@ export default {
     },
 
     fetch_log(jobname) {
-      let vm = this
+      const vm = this
       vm.console_loading = true
 
       if (this.console_stickbt) {
@@ -278,6 +302,7 @@ export default {
     },
 
     run(jobname, manual, status) {
+<<<<<<< HEAD
       let vm = this
       axios.post(`/runjob`, {
         goal: jobname,
@@ -292,13 +317,35 @@ export default {
           if ('error' in data) {
             vm.input_err_msg = "Job is not defined."
             return
+=======
+      const vm = this
+      return new Promise((resolve, reject) => {
+        axios.post(`/runjob`, {
+          goal: jobname,
+          dry_run: manual && vm.dry_run,
+          single_job: manual && vm.single_job,
+          status_task: status
+        })
+        .then(function (res) {
+          const data = res.data
+
+          if (manual) {
+            if ('error' in data) {
+              vm.input_err_msg = "Job is not defined."
+              reject(vm.input_err_msg)
+              return
+            }
+
+            vm.fetch_log(jobname)
+>>>>>>> master
           }
 
-          vm.fetch_log(jobname)
-        }
-      })
-      .catch(function (err) {
-        console.error(err)
+          resolve(data['taskID'])
+        })
+        .catch(function (err) {
+          console.error(err)
+          reject(err)
+        })
       })
     },
 
@@ -314,7 +361,7 @@ export default {
     },
 
     getJobDescription(jobname) {
-      let vm = this
+      const vm = this
       let job = {
         'name': jobname
       }
@@ -353,7 +400,7 @@ export default {
     },
 
     update_tasks_list() {
-      let vm = this
+      const vm = this
       axios.get(`/get/tasks`)
       .then(function (res) {
         const data = res.data
@@ -365,6 +412,7 @@ export default {
       })
     },
 
+<<<<<<< HEAD
     changeStatus(key, goal) {
       let vm = this
       vm.status[key] = null
@@ -391,6 +439,65 @@ export default {
         const exitcode = job.exitcode
         switch (job.jobname) {
 
+=======
+    async runAndWait() {
+      const vm = this
+      const arg = arguments
+      const taskID = await vm.run(arg[0], arg[1], arg[2])
+
+      return new Promise((resolve, reject) => {
+        const timer = setInterval(() => {
+          if (vm.isTaskFinished(taskID)) {
+            resolve(taskID)
+          }
+        }, 1000)
+      })
+    },
+
+    async changeStatus(key, goal) {
+      this.status[key] = null
+      this.updateStatus_enable = false
+
+      await this.runAndWait(goal, false, false)
+      console.log(`${goal} finished.`)
+
+      await this.runAndWait('check-alive:all', false, true)
+      console.log(`check-alive finished.`)
+
+      this.updateStatus_enable = true
+    },
+
+    queryTaskID_runList(taskID) {
+      const queryTasks = this.tasks.filter(t => t.taskid == taskID)
+      if (queryTasks.length == 0)
+        return []
+
+      return queryTasks[0].runList
+    },
+
+    isTaskFinished(taskID) {
+      const runList = this.queryTaskID_runList(taskID)
+      if (runList.length == 0)
+        return 0
+
+      const last_job = runList[runList.length - 1]
+      const err_jobs = runList.filter(j => j.exitcode > 0)
+
+      if (err_jobs.length > 0 || last_job.exitcode >= 0) {
+        return 1
+      }
+
+      return 0
+    },
+
+    updateStatus() {
+      const vm = this
+      const runList = this.queryTaskID_runList(0)
+      runList.forEach(job => {
+        const exitcode = job.exitcode
+        switch (job.jobname) {
+
+>>>>>>> master
         case 'check-alive:mounted':
           if (exitcode >= 0) vm.status.mounted = (exitcode == 0)
           break
